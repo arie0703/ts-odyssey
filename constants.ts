@@ -10,7 +10,7 @@ export const INITIAL_LIFE = 3;
 
 // アセットパスの設定（本来は /assets/ フォルダに配置する）
 export const ASSET_PATHS = {
-  PLAYER: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=hero',
+  PLAYER: '/assets/images/kiro-ghost.png',
   ENEMY: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=enemy',
   COIN: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=coin',
   STAR: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=star',

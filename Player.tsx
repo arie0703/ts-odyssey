@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Entity } from './types';
+import { ASSET_PATHS } from './constants';
 
 interface PlayerProps {
   player: Entity & { isHurt?: boolean };
@@ -11,10 +12,8 @@ const Player: React.FC<PlayerProps> = ({ player }) => {
 
   return (
     <div 
-      className={`absolute rounded transition-colors duration-200 ${
-        player.isHurt 
-          ? 'bg-red-600 border-red-800 animate-pulse' 
-          : 'bg-blue-500 border-2 border-blue-700'
+      className={`absolute ${
+        player.isHurt ? 'animate-pulse opacity-70' : ''
       }`}
       style={{ 
         left: player.pos.x, 
@@ -24,14 +23,15 @@ const Player: React.FC<PlayerProps> = ({ player }) => {
         transform: isFacingLeft ? 'scaleX(-1)' : 'scaleX(1)'
       }}
     >
-      {/* 帽子/髪のハイライト */}
-      <div className="absolute top-1 left-1 right-1 h-3 bg-white opacity-30 rounded-full" />
-      
-      {/* つぶらな瞳 */}
-      <div className="flex justify-center mt-2 space-x-1">
-         <div className="w-1.5 h-1.5 bg-black rounded-full" />
-         <div className="w-1.5 h-1.5 bg-black rounded-full" />
-      </div>
+      <img 
+        src={ASSET_PATHS.PLAYER}
+        alt="Player"
+        className="w-full h-full object-cover"
+        style={{ 
+          display: 'block',
+          filter: player.isHurt ? 'brightness(1.5) saturate(1.5) hue-rotate(0deg)' : 'none'
+        }}
+      />
     </div>
   );
 };
