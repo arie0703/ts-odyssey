@@ -1,0 +1,5 @@
+{
+  "name": "Super TypeScript Odyssey",
+  "description": "A side-scrolling platformer built with React and TypeScript, featuring Mario-style mechanics like enemy stomping, coin collection, and stage progression.",
+  "requestFramePermissions": []
+}
