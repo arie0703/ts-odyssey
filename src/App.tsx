@@ -4,8 +4,8 @@ import { GameState, GameStatus } from './types';
 import { 
   VIEWPORT_WIDTH, VIEWPORT_HEIGHT, WORLD_WIDTH
 } from './constants';
-import { createInitialState, updateState } from './engine';
-import Player from './Player';
+import { createInitialState, updateState } from './engine/engine';
+import Player from './components/Player';
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(createInitialState());

@@ -1,9 +1,9 @@
 
-import { GameState, GameStatus, Entity } from './types';
+import { GameState, GameStatus, Entity } from '../types';
 import { 
   TILE_SIZE, GRAVITY, JUMP_FORCE, MOVE_SPEED, 
   VIEWPORT_HEIGHT, WORLD_WIDTH, INITIAL_LIFE 
-} from './constants';
+} from '../constants';
 
 export function createInitialState(): GameState {
   const platforms: Entity[] = [
