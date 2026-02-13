@@ -4,46 +4,80 @@ import {
   TILE_SIZE, GRAVITY, JUMP_FORCE, MOVE_SPEED, 
   VIEWPORT_HEIGHT, WORLD_WIDTH, INITIAL_LIFE 
 } from '../constants';
+import { defaultMapData } from './mapData';
 
-export function createInitialState(): GameState {
-  const platforms: Entity[] = [
-    ...Array.from({ length: 120 }).map((_, i) => {
-      if (i % 15 === 10 || i % 15 === 11) return null;
+/**
+ * マップデータからエンティティを生成する
+ */
+function createEntitiesFromMapData() {
+  const mapData = defaultMapData;
+
+  // 基本床の生成
+  const floorPlatforms: Entity[] = Array.from({ length: mapData.floorPattern.tileCount })
+    .map((_, i) => {
+      // 間隔内での位置を計算（例: 15個ごとに10番目と11番目をスキップ）
+      const positionInInterval = i % mapData.floorPattern.gapInterval;
+      if (mapData.floorPattern.gapPositions.includes(positionInInterval)) {
+        return null; // 穴を作る
+      }
       return {
         id: `p-${i}`,
-        type: 'PLATFORM',
+        type: 'PLATFORM' as const,
         pos: { x: i * TILE_SIZE, y: VIEWPORT_HEIGHT - TILE_SIZE },
         size: { x: TILE_SIZE, y: TILE_SIZE },
         vel: { x: 0, y: 0 }
-      };
-    }).filter((p): p is Entity => p !== null),
-    { id: 'p-mid-1', type: 'PLATFORM', pos: { x: 400, y: 400 }, size: { x: 120, y: 20 }, vel: { x: 0, y: 0 } },
-    { id: 'p-mid-2', type: 'PLATFORM', pos: { x: 700, y: 300 }, size: { x: 120, y: 20 }, vel: { x: 0, y: 0 } },
-    { id: 'p-mid-3', type: 'PLATFORM', pos: { x: 1200, y: 350 }, size: { x: 200, y: 20 }, vel: { x: 0, y: 0 } },
-  ];
+      } as Entity;
+    })
+    .filter((p): p is Entity => p !== null);
 
-  const enemies: Entity[] = [
-    { id: 'e1', type: 'ENEMY', pos: { x: 600, y: 500 }, size: { x: 40, y: 40 }, vel: { x: -2, y: 0 }, isDead: false },
-    { id: 'e2', type: 'ENEMY', pos: { x: 1200, y: 500 }, size: { x: 40, y: 40 }, vel: { x: -1.5, y: 0 }, isDead: false },
-    { id: 'e3', type: 'ENEMY', pos: { x: 2000, y: 500 }, size: { x: 40, y: 40 }, vel: { x: -2.5, y: 0 }, isDead: false },
-  ];
+  // 中間プラットフォームの生成
+  const midPlatforms: Entity[] = mapData.platforms.map(platform => ({
+    id: platform.id,
+    type: 'PLATFORM' as const,
+    pos: platform.pos,
+    size: platform.size,
+    vel: { x: 0, y: 0 }
+  }));
 
-  const coins: Entity[] = Array.from({ length: 15 }).map((_, i) => ({
-    id: `c-${i}`,
-    type: 'COIN',
-    pos: { x: 500 + i * 300, y: 400 - (i % 3) * 50 },
-    size: { x: 25, y: 25 },
+  // 敵の生成
+  const enemies: Entity[] = mapData.enemies.map(enemy => ({
+    id: enemy.id,
+    type: 'ENEMY' as const,
+    pos: enemy.pos,
+    size: enemy.size,
+    vel: enemy.vel,
+    isDead: false
+  }));
+
+  // コインの生成
+  const coins: Entity[] = mapData.coins.map(coin => ({
+    id: coin.id,
+    type: 'COIN' as const,
+    pos: coin.pos,
+    size: coin.size,
     vel: { x: 0, y: 0 },
     isCollected: false
   }));
 
+  // スターの生成
   const star: Entity = {
-    id: 'star-goal',
-    type: 'STAR',
-    pos: { x: WORLD_WIDTH - 200, y: 500 },
-    size: { x: 50, y: 50 },
+    id: mapData.star.id,
+    type: 'STAR' as const,
+    pos: mapData.star.pos,
+    size: mapData.star.size,
     vel: { x: 0, y: 0 }
   };
+
+  return {
+    platforms: [...floorPlatforms, ...midPlatforms],
+    enemies,
+    coins,
+    star
+  };
+}
+
+export function createInitialState(): GameState {
+  const { platforms, enemies, coins, star } = createEntitiesFromMapData();
 
   return {
     player: {
