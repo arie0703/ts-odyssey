@@ -4,86 +4,16 @@ import {
   TILE_SIZE, GRAVITY, JUMP_FORCE, MOVE_SPEED, 
   VIEWPORT_HEIGHT, WORLD_WIDTH, INITIAL_LIFE 
 } from '../constants';
-import { defaultMapData } from './mapData';
-
-/**
- * マップデータからエンティティを生成する
- */
-function createEntitiesFromMapData() {
-  const mapData = defaultMapData;
-
-  // 基本床の生成
-  const floorPlatforms: Entity[] = Array.from({ length: mapData.floorPattern.tileCount })
-    .map((_, i) => {
-      // 間隔内での位置を計算（例: 15個ごとに10番目と11番目をスキップ）
-      const positionInInterval = i % mapData.floorPattern.gapInterval;
-      if (mapData.floorPattern.gapPositions.includes(positionInInterval)) {
-        return null; // 穴を作る
-      }
-      return {
-        id: `p-${i}`,
-        type: 'PLATFORM' as const,
-        pos: { x: i * TILE_SIZE, y: VIEWPORT_HEIGHT - TILE_SIZE },
-        size: { x: TILE_SIZE, y: TILE_SIZE },
-        vel: { x: 0, y: 0 }
-      } as Entity;
-    })
-    .filter((p): p is Entity => p !== null);
-
-  // 中間プラットフォームの生成
-  const midPlatforms: Entity[] = mapData.platforms.map(platform => ({
-    id: platform.id,
-    type: 'PLATFORM' as const,
-    pos: platform.pos,
-    size: platform.size,
-    vel: { x: 0, y: 0 }
-  }));
-
-  // 敵の生成
-  const enemies: Entity[] = mapData.enemies.map(enemy => ({
-    id: enemy.id,
-    type: 'ENEMY' as const,
-    pos: enemy.pos,
-    size: enemy.size,
-    vel: enemy.vel,
-    isDead: false
-  }));
-
-  // コインの生成
-  const coins: Entity[] = mapData.coins.map(coin => ({
-    id: coin.id,
-    type: 'COIN' as const,
-    pos: coin.pos,
-    size: coin.size,
-    vel: { x: 0, y: 0 },
-    isCollected: false
-  }));
-
-  // スターの生成
-  const star: Entity = {
-    id: mapData.star.id,
-    type: 'STAR' as const,
-    pos: mapData.star.pos,
-    size: mapData.star.size,
-    vel: { x: 0, y: 0 }
-  };
-
-  return {
-    platforms: [...floorPlatforms, ...midPlatforms],
-    enemies,
-    coins,
-    star
-  };
-}
+import { createEntitiesFromTileMap } from './tileMapLoader';
 
 export function createInitialState(): GameState {
-  const { platforms, enemies, coins, star } = createEntitiesFromMapData();
+  const { platforms, enemies, coins, star, playerSpawn } = createEntitiesFromTileMap();
 
   return {
     player: {
       id: 'player',
       type: 'PLAYER',
-      pos: { x: 100, y: 500 },
+      pos: playerSpawn,
       size: { x: 32, y: 48 },
       vel: { x: 0, y: 0 },
       life: INITIAL_LIFE,
