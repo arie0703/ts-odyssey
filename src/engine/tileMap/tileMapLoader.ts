@@ -1,7 +1,8 @@
-import { TileMapDefinition } from '../types/tileMap';
-import { Entity } from '../types';
-import { TILE_SIZE, VIEWPORT_HEIGHT } from '../constants';
+import { TileMapDefinition, TileType } from '../../types/tileMap';
+import { Entity } from '../../types';
+import { TILE_SIZE, VIEWPORT_HEIGHT } from '../../constants';
 import tileMapJson from './tileMap.json';
+import { convert1DTo2DTiles } from './tileMapConverter';
 
 /**
  * タイルマップデータを読み込む
@@ -23,10 +24,10 @@ export function createEntitiesFromTileMap(): {
   const tileMap = loadTileMap();
   const { map, enemySpawns = [], coinSpawns = [], starSpawn, playerSpawn } = tileMap;
 
-  // タイル配列を1次元配列に正規化
+  // タイル配列を2次元配列として扱う
   const tiles = Array.isArray(map.tiles[0])
-    ? (map.tiles as number[][]).flat()
-    : (map.tiles as number[]);
+    ? (map.tiles as number[][])
+    : convert1DTo2DTiles(map.tiles as TileType[], map.width, map.height);
 
   const platforms: Entity[] = [];
   const enemies: Entity[] = [];
@@ -52,8 +53,7 @@ export function createEntitiesFromTileMap(): {
   
   for (let y = 0; y < map.height; y++) {
     for (let x = 0; x < map.width; x++) {
-      const index = y * map.width + x;
-      const tile = tiles[index];
+      const tile = tiles[y][x];
       const pixelX = x * map.tileSize;
       const pixelY = y * map.tileSize;
 

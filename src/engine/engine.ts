@@ -4,7 +4,7 @@ import {
   TILE_SIZE, GRAVITY, JUMP_FORCE, MOVE_SPEED, 
   VIEWPORT_HEIGHT, WORLD_WIDTH, INITIAL_LIFE 
 } from '../constants';
-import { createEntitiesFromTileMap } from './tileMapLoader';
+import { createEntitiesFromTileMap } from './tileMap/tileMapLoader';
 
 export function createInitialState(): GameState {
   const { platforms, enemies, coins, star, playerSpawn } = createEntitiesFromTileMap();

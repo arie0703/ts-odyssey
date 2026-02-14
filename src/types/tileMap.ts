@@ -12,14 +12,14 @@ export type TileType = 0 | 1 | 2 | 3 | 4 | 5;
 /**
  * タイルマップデータ
  * 2次元配列でマップを表現
- * [行][列] の形式
+ * [行][列] の形式（tiles[y][x]）
  */
 export interface TileMapData {
   /** マップの幅（タイル数） */
   width: number;
   /** マップの高さ（タイル数） */
   height: number;
-  /** タイルマップデータ（1次元配列または2次元配列） */
+  /** タイルマップデータ（2次元配列を推奨、1次元配列も後方互換性のためサポート） */
   tiles: TileType[] | TileType[][];
   /** タイルサイズ（ピクセル） */
   tileSize: number;
