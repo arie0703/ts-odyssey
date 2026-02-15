@@ -6,8 +6,8 @@ import {
 } from '../constants';
 import { createEntitiesFromTileMap } from './tileMap/tileMapLoader';
 
-export function createInitialState(): GameState {
-  const { platforms, enemies, coins, star, playerSpawn } = createEntitiesFromTileMap();
+export function createInitialState(mapPath: string = 'default'): GameState {
+  const { platforms, enemies, coins, star, playerSpawn } = createEntitiesFromTileMap(mapPath);
 
   return {
     player: {

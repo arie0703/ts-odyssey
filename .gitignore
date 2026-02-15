@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# マップエディターで生成したJSONファイル
+src/mapdata/tileMap_*.json

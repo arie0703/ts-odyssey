@@ -1,27 +1,80 @@
+/// <reference types="vite/client" />
+
 import { TileMapDefinition, TileType } from '../../types/tileMap';
 import { Entity } from '../../types';
 import { TILE_SIZE, VIEWPORT_HEIGHT } from '../../constants';
 import tileMapJson from './tileMap.json';
 import { convert1DTo2DTiles } from './tileMapConverter';
 
+// src/mapdata/内のJSONファイルを動的に読み込む
+// eager: true により、モジュールが即座に読み込まれる
+const mapDataModules = import.meta.glob<{ default: TileMapDefinition }>('../../mapdata/*.json', { eager: true });
+
+/**
+ * 利用可能なマップファイルのリストを取得
+ */
+export function getAvailableMaps(): { name: string; path: string }[] {
+  const maps: { name: string; path: string }[] = [];
+  
+  // デフォルトマップを追加
+  maps.push({
+    name: 'デフォルトマップ',
+    path: 'default'
+  });
+  
+  // mapdata内のマップを追加
+  try {
+    Object.keys(mapDataModules).forEach(path => {
+      const fileName = path.split('/').pop()?.replace('.json', '') || '';
+      if (fileName) {
+        maps.push({
+          name: fileName,
+          path: path
+        });
+      }
+    });
+  } catch (error) {
+    console.warn('マップファイルの読み込み中にエラーが発生しました:', error);
+  }
+  
+  return maps;
+}
+
 /**
  * タイルマップデータを読み込む
+ * @param mapPath マップファイルのパス（'default'の場合はデフォルトマップ）
  */
-export function loadTileMap(): TileMapDefinition {
-  return tileMapJson as TileMapDefinition;
+export function loadTileMap(mapPath: string = 'default'): TileMapDefinition {
+  if (mapPath === 'default') {
+    return tileMapJson as TileMapDefinition;
+  }
+  
+  try {
+    const mapModule = mapDataModules[mapPath];
+    if (!mapModule || !mapModule.default) {
+      console.warn(`マップファイルが見つかりません: ${mapPath}。デフォルトマップを使用します。`);
+      return tileMapJson as TileMapDefinition;
+    }
+    
+    return mapModule.default;
+  } catch (error) {
+    console.error(`マップファイルの読み込みに失敗しました: ${mapPath}`, error);
+    return tileMapJson as TileMapDefinition;
+  }
 }
 
 /**
  * タイルマップからエンティティを生成する
+ * @param mapPath マップファイルのパス（'default'の場合はデフォルトマップ）
  */
-export function createEntitiesFromTileMap(): {
+export function createEntitiesFromTileMap(mapPath: string = 'default'): {
   platforms: Entity[];
   enemies: Entity[];
   coins: Entity[];
   star: Entity | null;
   playerSpawn: { x: number; y: number };
 } {
-  const tileMap = loadTileMap();
+  const tileMap = loadTileMap(mapPath);
   const { map, enemySpawns = [], coinSpawns = [], starSpawn, playerSpawn } = tileMap;
 
   // タイル配列を2次元配列として扱う

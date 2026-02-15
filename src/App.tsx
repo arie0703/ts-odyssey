@@ -1,14 +1,26 @@
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { GameState, GameStatus } from './types';
 import { 
   VIEWPORT_WIDTH, VIEWPORT_HEIGHT, WORLD_WIDTH
 } from './constants';
 import { createInitialState, updateState } from './engine/engine';
 import Player from './components/Player';
+import MapEditor from './components/MapEditor';
+import { getAvailableMaps } from './engine/tileMap/tileMapLoader';
 
 const App: React.FC = () => {
-  const [gameState, setGameState] = useState<GameState>(createInitialState());
+  // URLパラメータでマップエディターに切り替え
+  const urlParams = new URLSearchParams(window.location.search);
+  const isEditorMode = urlParams.get('mode') === 'editor';
+
+  if (isEditorMode) {
+    return <MapEditor />;
+  }
+  
+  const [selectedMapPath, setSelectedMapPath] = useState<string>('default');
+  const availableMaps = useMemo(() => getAvailableMaps(), []);
+  const [gameState, setGameState] = useState<GameState>(createInitialState(selectedMapPath));
   const requestRef = useRef<number | null>(null);
   const keysRef = useRef<{ [key: string]: boolean }>({});
   const isRespawningRef = useRef<boolean>(false);
@@ -78,7 +90,7 @@ const App: React.FC = () => {
 
   const startGame = () => {
     isRespawningRef.current = false;
-    setGameState({ ...createInitialState(), status: GameStatus.PLAYING });
+    setGameState({ ...createInitialState(selectedMapPath), status: GameStatus.PLAYING });
   };
 
   return (
@@ -155,6 +167,26 @@ const App: React.FC = () => {
         {gameState.status === GameStatus.START && (
           <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white">
             <h1 className="text-5xl font-black mb-6">TS ODYSSEY</h1>
+            
+            {/* マップ選択 */}
+            <div className="mb-6 w-full max-w-md">
+              <label className="block text-sm font-medium mb-2 text-center">マップを選択</label>
+              <select
+                value={selectedMapPath}
+                onChange={(e) => {
+                  setSelectedMapPath(e.target.value);
+                  setGameState({ ...createInitialState(e.target.value), status: GameStatus.START });
+                }}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:outline-none focus:border-yellow-500"
+              >
+                {availableMaps.map((map) => (
+                  <option key={map.path} value={map.path}>
+                    {map.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
             <button 
               onClick={startGame}
               className="bg-yellow-500 hover:bg-yellow-400 text-black px-8 py-3 rounded-full text-2xl font-bold transition-transform hover:scale-105"
