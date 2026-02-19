@@ -84,8 +84,42 @@ export function updateState(
   // 5. 敵
   newState.enemies = newState.enemies.map(enemy => {
     if (enemy.isDead) return enemy;
-    enemy.pos.x += enemy.vel.x;
-    if (enemy.pos.x < 0 || enemy.pos.x > WORLD_WIDTH) enemy.vel.x *= -1;
+    
+    // 地面の検出用関数：敵の足元にプラットフォームがあるかチェック
+    const hasGroundBelow = (x: number, y: number): boolean => {
+      const checkY = y + enemy.size.y; // 敵の足元のY座標
+      const checkX = x + enemy.size.x / 2; // 敵の中心のX座標
+      
+      // 敵の足元から少し下（5ピクセル）の範囲でプラットフォームをチェック
+      const checkArea = {
+        pos: { x: checkX - enemy.size.x / 2, y: checkY },
+        size: { x: enemy.size.x, y: 5 }
+      };
+      
+      return newState.platforms.some(platform => 
+        checkCollision(checkArea, platform)
+      );
+    };
+    
+    // 移動前の位置で地面をチェック
+    const currentGround = hasGroundBelow(enemy.pos.x, enemy.pos.y);
+    
+    // 移動先の位置で地面をチェック
+    const nextX = enemy.pos.x + enemy.vel.x;
+    const nextGround = hasGroundBelow(nextX, enemy.pos.y);
+    
+    // 現在位置または移動先に地面がない場合は方向を反転
+    if (!currentGround || !nextGround) {
+      enemy.vel.x *= -1;
+    } else {
+      // 地面がある場合のみ移動
+      enemy.pos.x += enemy.vel.x;
+    }
+    
+    // マップの端に到達した場合は方向を反転
+    if (enemy.pos.x < 0 || enemy.pos.x > WORLD_WIDTH) {
+      enemy.vel.x *= -1;
+    }
 
     if (checkCollision(player, enemy)) {
       if (player.vel.y > 0 && player.pos.y + player.size.y - player.vel.y <= enemy.pos.y + 10) {
