@@ -8,6 +8,7 @@ import { createInitialState, updateState } from './engine/engine';
 import Player from './components/Player';
 import MapEditor from './components/MapEditor';
 import { getAvailableMaps } from './engine/tileMap/tileMapLoader';
+import { createPauseHandler } from './input/pause';
 
 const App: React.FC = () => {
   // URLパラメータでマップエディターに切り替え
@@ -24,6 +25,12 @@ const App: React.FC = () => {
   const requestRef = useRef<number | null>(null);
   const keysRef = useRef<{ [key: string]: boolean }>({});
   const isRespawningRef = useRef<boolean>(false);
+  const gameStateRef = useRef<GameState>(gameState);
+
+  // gameStateが変更されたらrefも更新
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
 
   const handleDamage = useCallback((isFall: boolean) => {
     if (isRespawningRef.current) return;
@@ -34,6 +41,7 @@ const App: React.FC = () => {
       next.player.life -= 1;
       next.player.isHurt = true;
       next.player.vel = { x: 0, y: 0 };
+      gameStateRef.current = next;
       return next;
     });
 
@@ -51,13 +59,22 @@ const App: React.FC = () => {
           newState.player.isHurt = false;
         }
         isRespawningRef.current = false;
+        gameStateRef.current = newState;
         return newState;
       });
     }, 1200);
   }, []);
 
   const update = useCallback(() => {
+    const currentState = gameStateRef.current;
+
     if (isRespawningRef.current) {
+      requestRef.current = requestAnimationFrame(update);
+      return;
+    }
+
+    // ポーズ中は更新しない（setGameStateを呼ばない）
+    if (currentState.status === GameStatus.PAUSED) {
       requestRef.current = requestAnimationFrame(update);
       return;
     }
@@ -69,6 +86,9 @@ const App: React.FC = () => {
       const targetViewportX = Math.max(0, nextState.player.pos.x - VIEWPORT_WIDTH / 2);
       nextState.viewportX = Math.min(WORLD_WIDTH - VIEWPORT_WIDTH, targetViewportX);
       
+      // refも更新
+      gameStateRef.current = nextState;
+      
       return nextState;
     });
 
@@ -76,21 +96,46 @@ const App: React.FC = () => {
   }, [handleDamage]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => keysRef.current[e.key] = true;
-    const handleKeyUp = (e: KeyboardEvent) => keysRef.current[e.key] = false;
+    const { handleKeyDown: pauseHandleKeyDown, handleKeyUp: pauseHandleKeyUp } = createPauseHandler(
+      keysRef,
+      gameStateRef,
+      setGameState
+    );
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      keysRef.current[e.key] = true;
+      pauseHandleKeyDown(e);
+    };
+    
+    const handleKeyUp = (e: KeyboardEvent) => {
+      keysRef.current[e.key] = false;
+      pauseHandleKeyUp(e);
+    };
+    
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    
+    if (requestRef.current) {
+      cancelAnimationFrame(requestRef.current);
+    }
+    
     requestRef.current = requestAnimationFrame(update);
+    
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+        requestRef.current = null;
+      }
     };
   }, [update]);
 
   const startGame = () => {
     isRespawningRef.current = false;
-    setGameState({ ...createInitialState(selectedMapPath), status: GameStatus.PLAYING });
+    const newState = { ...createInitialState(selectedMapPath), status: GameStatus.PLAYING };
+    gameStateRef.current = newState;
+    setGameState(newState);
   };
 
   return (
@@ -175,7 +220,9 @@ const App: React.FC = () => {
                 value={selectedMapPath}
                 onChange={(e) => {
                   setSelectedMapPath(e.target.value);
-                  setGameState({ ...createInitialState(e.target.value), status: GameStatus.START });
+                  const newState = { ...createInitialState(e.target.value), status: GameStatus.START };
+                  gameStateRef.current = newState;
+                  setGameState(newState);
                 }}
                 className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:outline-none focus:border-yellow-500"
               >
@@ -207,6 +254,13 @@ const App: React.FC = () => {
           <div className="absolute inset-0 bg-green-600/80 flex flex-col items-center justify-center text-white">
             <h1 className="text-6xl font-black mb-6">CLEAR!</h1>
             <button onClick={startGame} className="underline text-xl">PLAY AGAIN</button>
+          </div>
+        )}
+
+        {gameState.status === GameStatus.PAUSED && (
+          <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white">
+            <h1 className="text-6xl font-black mb-6">PAUSED</h1>
+            <p className="text-xl mb-4">Pキーを押して再開</p>
           </div>
         )}
       </div>
