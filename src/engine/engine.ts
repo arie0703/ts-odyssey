@@ -1,10 +1,16 @@
 
-import { GameState, GameStatus, Entity } from '../types';
-import { 
-  TILE_SIZE, GRAVITY, JUMP_FORCE, MOVE_SPEED, 
-  VIEWPORT_HEIGHT, WORLD_WIDTH, INITIAL_LIFE 
-} from '../constants';
+import { GameState, GameStatus } from '../types';
+import { INITIAL_LIFE } from '../constants';
 import { createEntitiesFromTileMap } from './tileMap/tileMapLoader';
+import {
+  handlePlayerInput,
+  applyPlayerPhysics,
+  handlePlayerPlatformCollisions,
+  checkPlayerFall
+} from './entities/player';
+import { updateEnemy } from './entities/enemy';
+import { updateCoin } from './entities/coin';
+import { updateStar } from './entities/star';
 
 export function createInitialState(mapPath: string = 'default'): GameState {
   const { platforms, enemies, coins, star, playerSpawn } = createEntitiesFromTileMap(mapPath);
@@ -29,18 +35,9 @@ export function createInitialState(mapPath: string = 'default'): GameState {
   };
 }
 
-export function checkCollision(a: { pos: { x: number, y: number }, size: { x: number, y: number } }, b: { pos: { x: number, y: number }, size: { x: number, y: number } }): boolean {
-  return (
-    a.pos.x < b.pos.x + b.size.x &&
-    a.pos.x + a.size.x > b.pos.x &&
-    a.pos.y < b.pos.y + b.size.y &&
-    a.pos.y + a.size.y > b.pos.y
-  );
-}
-
 export function updateState(
-  prev: GameState, 
-  keys: { [key: string]: boolean }, 
+  prev: GameState,
+  keys: { [key: string]: boolean },
   onDamage: (isFall: boolean) => void
 ): GameState {
   if (prev.status !== GameStatus.PLAYING) return prev;
@@ -48,67 +45,31 @@ export function updateState(
   const newState = JSON.parse(JSON.stringify(prev)) as GameState;
   const { player } = newState;
 
-  // 1. 入力
-  if (keys['ArrowLeft']) player.vel.x = -MOVE_SPEED;
-  else if (keys['ArrowRight']) player.vel.x = MOVE_SPEED;
-  else player.vel.x = 0;
+  // 1. プレイヤー入力処理
+  handlePlayerInput(player, keys);
 
-  if (keys[' '] && player.vel.y === 0) {
-    player.vel.y = JUMP_FORCE;
-  }
+  // 2. プレイヤー物理演算
+  applyPlayerPhysics(player);
 
-  // 2. 物理
-  player.vel.y += GRAVITY;
-  player.pos.x += player.vel.x;
-  player.pos.y += player.vel.y;
+  // 3. プレイヤーとプラットフォームの衝突
+  handlePlayerPlatformCollisions(player, newState.platforms);
 
-  // 3. 足場衝突
-  newState.platforms.forEach(p => {
-    if (checkCollision(player, p)) {
-      if (player.vel.y > 0 && player.pos.y + player.size.y - player.vel.y <= p.pos.y + 5) {
-        player.pos.y = p.pos.y - player.size.y;
-        player.vel.y = 0;
-      } else if (player.vel.y < 0 && player.pos.y - player.vel.y >= p.pos.y + p.size.y - 5) {
-        player.pos.y = p.pos.y + p.size.y;
-        player.vel.y = 1;
-      }
-    }
-  });
-
-  // 4. 落下
-  if (player.pos.y > VIEWPORT_HEIGHT) {
-    onDamage(true);
+  // 4. プレイヤーの落下判定
+  if (checkPlayerFall(player, onDamage)) {
     return prev; // App.tsx側のhandleDamageで状態が更新されるため
   }
 
-  // 5. 敵
-  newState.enemies = newState.enemies.map(enemy => {
-    if (enemy.isDead) return enemy;
-    enemy.pos.x += enemy.vel.x;
-    if (enemy.pos.x < 0 || enemy.pos.x > WORLD_WIDTH) enemy.vel.x *= -1;
+  // 5. 敵の更新
+  newState.enemies = newState.enemies.map((enemy) =>
+    updateEnemy(enemy, player, newState.platforms, onDamage)
+  );
 
-    if (checkCollision(player, enemy)) {
-      if (player.vel.y > 0 && player.pos.y + player.size.y - player.vel.y <= enemy.pos.y + 10) {
-        player.vel.y = JUMP_FORCE / 1.5;
-        return { ...enemy, isDead: true };
-      } else {
-        onDamage(false);
-      }
-    }
-    return enemy;
-  });
+  // 6. コインの更新
+  newState.coins = newState.coins.map((coin) => updateCoin(coin, player));
 
-  // 6. コイン
-  newState.coins = newState.coins.map(coin => {
-    if (!coin.isCollected && checkCollision(player, coin)) {
-      player.score += 100;
-      return { ...coin, isCollected: true };
-    }
-    return coin;
-  });
-
-  // 7. スター
-  if (newState.star && checkCollision(player, newState.star)) {
+  // 7. スターの更新
+  const starResult = updateStar(newState.star, player);
+  if (starResult === GameStatus.CLEAR) {
     newState.status = GameStatus.CLEAR;
   }
 
