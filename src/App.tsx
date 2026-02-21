@@ -9,6 +9,7 @@ import Player from './components/Player';
 import MapEditor from './components/MapEditor';
 import { getAvailableMaps } from './engine/tileMap/tileMapLoader';
 import { createPauseHandler } from './input/pause';
+import { createTitleHandler } from './input/title';
 
 const App: React.FC = () => {
   // URLパラメータでマップエディターに切り替え
@@ -101,15 +102,22 @@ const App: React.FC = () => {
       gameStateRef,
       setGameState
     );
+    const { handleKeyDown: titleHandleKeyDown, handleKeyUp: titleHandleKeyUp } = createTitleHandler(
+      keysRef,
+      gameStateRef,
+      setGameState
+    );
 
     const handleKeyDown = (e: KeyboardEvent) => {
       keysRef.current[e.key] = true;
       pauseHandleKeyDown(e);
+      titleHandleKeyDown(e);
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
       keysRef.current[e.key] = false;
       pauseHandleKeyUp(e);
+      titleHandleKeyUp(e);
     };
     
     window.addEventListener('keydown', handleKeyDown);
