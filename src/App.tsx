@@ -74,9 +74,9 @@ const App: React.FC = () => {
       return;
     }
 
-    // ポーズ中は更新しない（setGameStateを呼ばない）
-    if (currentState.status === GameStatus.PAUSED) {
-      requestRef.current = requestAnimationFrame(update);
+    // ポーズ中やタイトル画面ではループを停止
+    if (currentState.status === GameStatus.PAUSED || currentState.status === GameStatus.START) {
+      // requestAnimationFrameを登録しない（ループを停止）
       return;
     }
 
@@ -95,6 +95,21 @@ const App: React.FC = () => {
 
     requestRef.current = requestAnimationFrame(update);
   }, [handleDamage]);
+
+  // ゲームループを開始する関数
+  const startGameLoop = useCallback(() => {
+    if (requestRef.current) {
+      cancelAnimationFrame(requestRef.current);
+    }
+    requestRef.current = requestAnimationFrame(update);
+  }, [update]);
+
+  // ゲーム状態がPLAYINGになったらループを再開
+  useEffect(() => {
+    if (gameState.status === GameStatus.PLAYING) {
+      startGameLoop();
+    }
+  }, [gameState.status, startGameLoop]);
 
   useEffect(() => {
     const { handleKeyDown: pauseHandleKeyDown, handleKeyUp: pauseHandleKeyUp } = createPauseHandler(
@@ -123,11 +138,14 @@ const App: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     
-    if (requestRef.current) {
-      cancelAnimationFrame(requestRef.current);
+    // 初期状態がPLAYINGの場合のみループを開始
+    // それ以外（START）の場合はループを開始しない
+    if (gameState.status === GameStatus.PLAYING) {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+      requestRef.current = requestAnimationFrame(update);
     }
-    
-    requestRef.current = requestAnimationFrame(update);
     
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -137,13 +155,15 @@ const App: React.FC = () => {
         requestRef.current = null;
       }
     };
-  }, [update]);
+  }, [update, gameState.status]);
 
   const startGame = () => {
     isRespawningRef.current = false;
     const newState = { ...createInitialState(selectedMapPath), status: GameStatus.PLAYING };
     gameStateRef.current = newState;
     setGameState(newState);
+    // ゲーム開始時にループを再開
+    startGameLoop();
   };
 
   return (
