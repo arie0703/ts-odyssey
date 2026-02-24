@@ -210,6 +210,19 @@ const App: React.FC = () => {
             </div>
           ))}
 
+          {/* Spikes */}
+          {gameState.spikes.map(spike => (
+            <div 
+              key={spike.id}
+              className="absolute bg-gray-800 border-2 border-gray-600"
+              style={{ left: spike.pos.x, top: spike.pos.y, width: spike.size.x, height: spike.size.y }}
+            >
+              <div className="flex items-center justify-center h-full">
+                <div className="text-2xl text-gray-400">▲</div>
+              </div>
+            </div>
+          ))}
+
           {/* Goal */}
           {gameState.star && (
             <div 

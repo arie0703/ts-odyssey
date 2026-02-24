@@ -1,5 +1,5 @@
 
-export type EntityType = 'PLAYER' | 'ENEMY' | 'COIN' | 'PLATFORM' | 'STAR';
+export type EntityType = 'PLAYER' | 'ENEMY' | 'COIN' | 'PLATFORM' | 'STAR' | 'SPIKE';
 
 export interface Vector2D {
   x: number;
@@ -34,6 +34,7 @@ export interface GameState {
   coins: Entity[];
   platforms: Entity[];
   star: Entity | null;
+  spikes: Entity[];
   viewportX: number;
   status: GameStatus;
 }

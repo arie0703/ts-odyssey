@@ -10,6 +10,7 @@ const TILE_TYPES: { value: TileType; label: string; color: string }[] = [
   { value: 3, label: 'コイン', color: '#fbbf24' },
   { value: 4, label: 'スター', color: '#f59e0b' },
   { value: 5, label: 'プレイヤー', color: '#3b82f6' },
+  { value: 6, label: 'トゲ', color: '#4b5563' },
 ];
 
 const DEFAULT_WIDTH = 125;
@@ -122,6 +123,8 @@ const MapEditor: React.FC = () => {
         }
       } else if (selectedTileType === 5) { // プレイヤー
         setPlayerSpawn({ tileX: x, tileY: y });
+      } else if (selectedTileType === 6) { // トゲ
+        // トゲはSpawns情報が不要なので、タイルタイプだけを設定
       } else {
         // 他のタイルタイプに変更された場合、Spawns情報を削除
         if (oldType === 2) {
@@ -310,6 +313,7 @@ const MapEditor: React.FC = () => {
                     const isEnemySpawn = enemySpawns.some(e => e.tileX === x && e.tileY === y);
                     const isCoinSpawn = coinSpawns.some(c => c.tileX === x && c.tileY === y);
                     const isStarSpawn = starSpawn && starSpawn.tileX === x && starSpawn.tileY === y;
+                    const isSpike = tile === 6;
 
                     return (
                       <div
@@ -350,6 +354,12 @@ const MapEditor: React.FC = () => {
                             ★
                           </div>
                         )}
+                        {/* トゲ表示 */}
+                        {isSpike && (
+                          <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-300">
+                            ▲
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -386,6 +396,10 @@ const MapEditor: React.FC = () => {
             <div>
               <span className="font-medium">スター: </span>
               {starSpawn ? `(${starSpawn.tileX}, ${starSpawn.tileY})` : '未設定'}
+            </div>
+            <div>
+              <span className="font-medium">トゲ: </span>
+              {tiles.flat().filter(t => t === 6).length}個
             </div>
           </div>
         </div>

@@ -11,9 +11,10 @@ import {
 import { updateEnemy } from './entities/enemy';
 import { updateCoin } from './entities/coin';
 import { updateStar } from './entities/star';
+import { updateSpike } from './entities/spike';
 
 export function createInitialState(mapPath: string = 'default'): GameState {
-  const { platforms, enemies, coins, star, playerSpawn } = createEntitiesFromTileMap(mapPath);
+  const { platforms, enemies, coins, star, spikes, playerSpawn } = createEntitiesFromTileMap(mapPath);
 
   return {
     player: {
@@ -30,6 +31,7 @@ export function createInitialState(mapPath: string = 'default'): GameState {
     enemies,
     coins,
     star,
+    spikes,
     viewportX: 0,
     status: GameStatus.START
   };
@@ -72,6 +74,11 @@ export function updateState(
   if (starResult === GameStatus.CLEAR) {
     newState.status = GameStatus.CLEAR;
   }
+
+  // 8. トゲの更新
+  newState.spikes = newState.spikes.map((spike) =>
+    updateSpike(spike, player, onDamage)
+  );
 
   return newState;
 }
