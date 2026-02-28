@@ -72,6 +72,7 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
   enemies: Entity[];
   coins: Entity[];
   star: Entity | null;
+  spikes: Entity[];
   playerSpawn: { x: number; y: number };
 } {
   const tileMap = loadTileMap(mapPath);
@@ -85,6 +86,7 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
   const platforms: Entity[] = [];
   const enemies: Entity[] = [];
   const coins: Entity[] = [];
+  const spikes: Entity[] = [];
   let star: Entity | null = null;
 
   // Spawns情報を位置でマップ化（速度などの追加情報を取得するため）
@@ -103,6 +105,7 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
   // タイルマップを走査してエンティティを生成
   let enemyIndex = 0;
   let coinIndex = 0;
+  let spikeIndex = 0;
   
   for (let y = 0; y < map.height; y++) {
     for (let x = 0; x < map.width; x++) {
@@ -165,6 +168,17 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
             }
           }
           break;
+        case 6: // トゲ（タイルマップ内の位置から生成）
+          {
+            spikes.push({
+              id: `spike-${spikeIndex++}`,
+              type: 'SPIKE',
+              pos: { x: pixelX, y: pixelY },
+              size: { x: map.tileSize, y: map.tileSize },
+              vel: { x: 0, y: 0 }
+            });
+          }
+          break;
       }
     }
   }
@@ -182,6 +196,7 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
     enemies,
     coins,
     star,
+    spikes,
     playerSpawn: playerSpawnPos
   };
 }

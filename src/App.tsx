@@ -7,6 +7,7 @@ import {
 import { createInitialState, updateState } from './engine/engine';
 import Player from './components/Player';
 import MapEditor from './components/MapEditor';
+import Spike from './components/Spike';
 import { getAvailableMaps } from './engine/tileMap/tileMapLoader';
 import { createPauseHandler } from './input/pause';
 import { createTitleHandler } from './input/title';
@@ -208,6 +209,11 @@ const App: React.FC = () => {
                 <div className="w-2 h-2 bg-white rounded-full" />
               </div>
             </div>
+          ))}
+
+          {/* Spikes */}
+          {gameState.spikes.map(spike => (
+            <Spike key={spike.id} spike={spike} />
           ))}
 
           {/* Goal */}
