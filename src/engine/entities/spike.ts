@@ -3,7 +3,7 @@
  */
 
 import { Entity } from '../../types';
-import { checkCollision } from '../utils/collision';
+import { checkCollision, applyCollisionMargin } from '../utils/collision';
 
 /**
  * トゲの更新処理
@@ -14,8 +14,15 @@ export function updateSpike(
   player: Entity & { life: number; score: number; isHurt?: boolean },
   onDamage: (isFall: boolean) => void
 ): Entity {
-  // プレイヤーとの衝突判定
-  if (checkCollision(player, spike)) {
+  // 横方向のマージン（判定エリアを縮小）
+  const marginX = 15;
+  // 縦方向のマージン（判定エリアを縮小）
+  const marginY = 10;
+  
+  // マージンを適用した判定エリアで衝突判定
+  const adjustedSpike = applyCollisionMargin(spike, marginX, marginY);
+  
+  if (checkCollision(player, adjustedSpike)) {
     // プレイヤーがダメージを受ける
     onDamage(false);
   }
