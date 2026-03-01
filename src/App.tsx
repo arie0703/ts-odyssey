@@ -5,9 +5,13 @@ import {
   VIEWPORT_WIDTH, VIEWPORT_HEIGHT, WORLD_WIDTH
 } from './constants';
 import { createInitialState, updateState } from './engine/engine';
-import Player from './components/Player';
 import MapEditor from './components/MapEditor';
-import Spike from './components/Spike';
+import Player from './components/entities/Player';
+import Platform from './components/entities/Platform';
+import Coin from './components/entities/Coin';
+import Enemy from './components/entities/Enemy';
+import Spike from './components/entities/Spike';
+import Goal from './components/entities/Goal';
 import { getAvailableMaps } from './engine/tileMap/tileMapLoader';
 import { createPauseHandler } from './input/pause';
 import { createTitleHandler } from './input/title';
@@ -178,37 +182,18 @@ const App: React.FC = () => {
           style={{ transform: `translateX(-${gameState.viewportX}px)` }}
         >
           {/* Platforms */}
-          {gameState.platforms.map(p => (
-            <div 
-              key={p.id}
-              className="absolute bg-orange-800 border-t-4 border-orange-600"
-              style={{ left: p.pos.x, top: p.pos.y, width: p.size.x, height: p.size.y }}
-            />
+          {gameState.platforms.map(platform => (
+            <Platform key={platform.id} platform={platform} />
           ))}
 
           {/* Coins */}
-          {gameState.coins.map(c => !c.isCollected && (
-            <div 
-              key={c.id}
-              className="absolute rounded-full bg-yellow-400 border-2 border-yellow-600 flex items-center justify-center"
-              style={{ left: c.pos.x, top: c.pos.y, width: c.size.x, height: c.size.y }}
-            >
-              <div className="text-[10px] font-bold text-yellow-800">$</div>
-            </div>
+          {gameState.coins.map(coin => (
+            <Coin key={coin.id} coin={coin} />
           ))}
 
           {/* Enemies */}
-          {gameState.enemies.map(e => !e.isDead && (
-            <div 
-              key={e.id}
-              className="absolute bg-red-600 rounded-lg border-2 border-red-800"
-              style={{ left: e.pos.x, top: e.pos.y, width: e.size.x, height: e.size.y }}
-            >
-              <div className="flex justify-around mt-1">
-                <div className="w-2 h-2 bg-white rounded-full" />
-                <div className="w-2 h-2 bg-white rounded-full" />
-              </div>
-            </div>
+          {gameState.enemies.map(enemy => (
+            <Enemy key={enemy.id} enemy={enemy} />
           ))}
 
           {/* Spikes */}
@@ -218,12 +203,7 @@ const App: React.FC = () => {
 
           {/* Goal */}
           {gameState.star && (
-            <div 
-              className="absolute text-5xl"
-              style={{ left: gameState.star.pos.x, top: gameState.star.pos.y }}
-            >
-              ⭐
-            </div>
+            <Goal star={gameState.star} />
           )}
 
           {/* Player Component */}

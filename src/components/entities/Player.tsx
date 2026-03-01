@@ -1,7 +1,6 @@
-
 import React from 'react';
-import { Entity } from '../types';
-import { ASSET_PATHS } from '../constants';
+import { Entity } from '../../types';
+import { ASSET_PATHS } from '../../constants';
 
 interface PlayerProps {
   player: Entity & { isHurt?: boolean };
