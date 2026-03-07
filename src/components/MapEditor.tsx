@@ -1,16 +1,16 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { TileType, TileMapDefinition, EntitySpawn } from '../types/tileMap';
+import { TileType, TileMapDefinition, EntitySpawn, TILE_TYPES } from '../types/tileMap';
 import { loadTileMap } from '../engine/tileMap/tileMapLoader';
 import { convert1DTo2DTiles } from '../engine/tileMap/tileMapConverter';
 
-const TILE_TYPES: { value: TileType; label: string; color: string }[] = [
+const TILE_TYPE_OPTIONS: { value: TileType; label: string; color: string }[] = [
   { value: 0, label: '空', color: 'transparent' },
-  { value: 1, label: '地面', color: '#92400e' },
-  { value: 2, label: '敵', color: '#dc2626' },
-  { value: 3, label: 'コイン', color: '#fbbf24' },
-  { value: 4, label: 'スター', color: '#f59e0b' },
-  { value: 5, label: 'プレイヤー', color: '#3b82f6' },
-  { value: 6, label: 'トゲ', color: '#4b5563' },
+  { value: 10, label: '地面', color: '#92400e' },
+  { value: 20, label: '敵', color: '#dc2626' },
+  { value: 30, label: 'コイン', color: '#fbbf24' },
+  { value: 31, label: 'スター', color: '#f59e0b' },
+  { value: 50, label: 'プレイヤー', color: '#3b82f6' },
+  { value: 40, label: 'トゲ', color: '#4b5563' },
 ];
 
 const DEFAULT_WIDTH = 125;
@@ -19,7 +19,7 @@ const DEFAULT_TILE_SIZE = 40;
 const TILE_DISPLAY_SIZE = 20; // エディターでの表示サイズ
 
 const MapEditor: React.FC = () => {
-  const [selectedTileType, setSelectedTileType] = useState<TileType>(1);
+  const [selectedTileType, setSelectedTileType] = useState<TileType>(10);
   const [mapWidth, setMapWidth] = useState(DEFAULT_WIDTH);
   const [mapHeight, setMapHeight] = useState(DEFAULT_HEIGHT);
   const [tileSize, setTileSize] = useState(DEFAULT_TILE_SIZE);
@@ -86,8 +86,8 @@ const MapEditor: React.FC = () => {
       newTiles[y][x] = selectedTileType;
 
       // Spawns情報の更新
-      if (selectedTileType === 2) { // 敵
-        if (oldType === 2) {
+      if (selectedTileType === TILE_TYPES.ENEMY.BASIC) { // 敵
+        if (oldType === TILE_TYPES.ENEMY.BASIC) {
           // 既存の敵を削除
           setEnemySpawns(prev => prev.filter(e => !(e.tileX === x && e.tileY === y)));
         } else {
@@ -100,8 +100,8 @@ const MapEditor: React.FC = () => {
             vel: { x: -2, y: 0 }
           }]);
         }
-      } else if (selectedTileType === 3) { // コイン
-        if (oldType === 3) {
+      } else if (selectedTileType === TILE_TYPES.COLLECTIBLE.COIN) { // コイン
+        if (oldType === TILE_TYPES.COLLECTIBLE.COIN) {
           setCoinSpawns(prev => prev.filter(c => !(c.tileX === x && c.tileY === y)));
         } else {
           const coinId = `c-${coinSpawns.length}`;
@@ -111,8 +111,8 @@ const MapEditor: React.FC = () => {
             tileY: y
           }]);
         }
-      } else if (selectedTileType === 4) { // スター
-        if (oldType === 4) {
+      } else if (selectedTileType === TILE_TYPES.COLLECTIBLE.STAR) { // スター
+        if (oldType === TILE_TYPES.COLLECTIBLE.STAR) {
           setStarSpawn(null);
         } else {
           setStarSpawn({
@@ -121,19 +121,19 @@ const MapEditor: React.FC = () => {
             tileY: y
           });
         }
-      } else if (selectedTileType === 5) { // プレイヤー
+      } else if (selectedTileType === TILE_TYPES.SPECIAL.PLAYER_SPAWN) { // プレイヤー
         setPlayerSpawn({ tileX: x, tileY: y });
-      } else if (selectedTileType === 6) { // トゲ
+      } else if (selectedTileType === TILE_TYPES.HAZARD.SPIKE) { // トゲ
         // トゲはSpawns情報が不要なので、タイルタイプだけを設定
       } else {
         // 他のタイルタイプに変更された場合、Spawns情報を削除
-        if (oldType === 2) {
+        if (oldType === TILE_TYPES.ENEMY.BASIC) {
           setEnemySpawns(prev => prev.filter(e => !(e.tileX === x && e.tileY === y)));
-        } else if (oldType === 3) {
+        } else if (oldType === TILE_TYPES.COLLECTIBLE.COIN) {
           setCoinSpawns(prev => prev.filter(c => !(c.tileX === x && c.tileY === y)));
-        } else if (oldType === 4) {
+        } else if (oldType === TILE_TYPES.COLLECTIBLE.STAR) {
           setStarSpawn(prev => prev && prev.tileX === x && prev.tileY === y ? null : prev);
-        } else if (oldType === 5) {
+        } else if (oldType === TILE_TYPES.SPECIAL.PLAYER_SPAWN) {
           setPlayerSpawn(prev => prev && prev.tileX === x && prev.tileY === y ? null : prev);
         }
       }
@@ -208,7 +208,7 @@ const MapEditor: React.FC = () => {
             <div>
               <label className="block text-sm font-medium mb-2">タイルタイプ</label>
               <div className="grid grid-cols-3 gap-2">
-                {TILE_TYPES.map(type => (
+                {TILE_TYPE_OPTIONS.map(type => (
                   <button
                     key={type.value}
                     onClick={() => setSelectedTileType(type.value)}
@@ -308,12 +308,12 @@ const MapEditor: React.FC = () => {
               {tiles.map((row, y) => (
                 <div key={y} className="flex">
                   {row.map((tile, x) => {
-                    const tileType = TILE_TYPES.find(t => t.value === tile);
+                    const tileType = TILE_TYPE_OPTIONS.find(t => t.value === tile);
                     const isPlayerSpawn = playerSpawn && playerSpawn.tileX === x && playerSpawn.tileY === y;
                     const isEnemySpawn = enemySpawns.some(e => e.tileX === x && e.tileY === y);
                     const isCoinSpawn = coinSpawns.some(c => c.tileX === x && c.tileY === y);
                     const isStarSpawn = starSpawn && starSpawn.tileX === x && starSpawn.tileY === y;
-                    const isSpike = tile === 6;
+                    const isSpike = tile === TILE_TYPES.HAZARD.SPIKE;
 
                     return (
                       <div
@@ -337,19 +337,19 @@ const MapEditor: React.FC = () => {
                           </div>
                         )}
                         {/* 敵スポーン表示 */}
-                        {isEnemySpawn && tile === 2 && (
+                        {isEnemySpawn && tile === TILE_TYPES.ENEMY.BASIC && (
                           <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
                             E
                           </div>
                         )}
                         {/* コインスポーン表示 */}
-                        {isCoinSpawn && tile === 3 && (
+                        {isCoinSpawn && tile === TILE_TYPES.COLLECTIBLE.COIN && (
                           <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">
                             $
                           </div>
                         )}
                         {/* スタースポーン表示 */}
-                        {isStarSpawn && tile === 4 && (
+                        {isStarSpawn && tile === TILE_TYPES.COLLECTIBLE.STAR && (
                           <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
                             ★
                           </div>
@@ -399,7 +399,7 @@ const MapEditor: React.FC = () => {
             </div>
             <div>
               <span className="font-medium">トゲ: </span>
-              {tiles.flat().filter(t => t === 6).length}個
+              {tiles.flat().filter(t => t === TILE_TYPES.HAZARD.SPIKE).length}個
             </div>
           </div>
         </div>

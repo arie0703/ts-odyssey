@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import { TileMapDefinition, TileType } from '../../types/tileMap';
+import { TileMapDefinition, TileType, getTileCategory, TILE_TYPES } from '../../types/tileMap';
 import { Entity } from '../../types';
 import { TILE_SIZE, VIEWPORT_HEIGHT } from '../../constants';
 import tileMapJson from './tileMap.json';
@@ -113,18 +113,24 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
       const pixelX = x * map.tileSize;
       const pixelY = y * map.tileSize;
 
-      switch (tile) {
-        case 1: // 地面
-          platforms.push({
-            id: `p-${x}-${y}`,
-            type: 'PLATFORM',
-            pos: { x: pixelX, y: pixelY },
-            size: { x: map.tileSize, y: map.tileSize },
-            vel: { x: 0, y: 0 }
-          });
+      const category = getTileCategory(tile);
+      
+      switch (category) {
+        case 'PLATFORM':
+          // 地面系（10-19）
+          if (tile === TILE_TYPES.PLATFORM.BASIC) {
+            platforms.push({
+              id: `p-${x}-${y}`,
+              type: 'PLATFORM',
+              pos: { x: pixelX, y: pixelY },
+              size: { x: map.tileSize, y: map.tileSize },
+              vel: { x: 0, y: 0 }
+            });
+          }
           break;
-        case 2: // 敵（タイルマップ内の位置から生成）
-          {
+        case 'ENEMY':
+          // 敵系（20-29）
+          if (tile === TILE_TYPES.ENEMY.BASIC) {
             const key = `${x},${y}`;
             const spawnInfo = enemySpawnMap.get(key);
             enemies.push({
@@ -137,8 +143,9 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
             });
           }
           break;
-        case 3: // コイン（タイルマップ内の位置から生成）
-          {
+        case 'COLLECTIBLE':
+          // アイテム系（30-39）
+          if (tile === TILE_TYPES.COLLECTIBLE.COIN) {
             const key = `${x},${y}`;
             const spawnInfo = coinSpawnMap.get(key);
             coins.push({
@@ -149,10 +156,7 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
               vel: { x: 0, y: 0 },
               isCollected: false
             });
-          }
-          break;
-        case 4: // スター（タイルマップ内の位置から生成）
-          {
+          } else if (tile === TILE_TYPES.COLLECTIBLE.STAR) {
             if (!star) {
               const key = `${x},${y}`;
               const spawnInfo = starSpawn && `${starSpawn.tileX},${starSpawn.tileY}` === key
@@ -168,8 +172,9 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
             }
           }
           break;
-        case 6: // トゲ（タイルマップ内の位置から生成）
-          {
+        case 'HAZARD':
+          // 罠系（40-49）
+          if (tile === TILE_TYPES.HAZARD.SPIKE) {
             spikes.push({
               id: `spike-${spikeIndex++}`,
               type: 'SPIKE',

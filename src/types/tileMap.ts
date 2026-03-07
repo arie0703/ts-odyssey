@@ -1,14 +1,56 @@
 /**
- * タイルマップのタイルタイプ
- * 0 = 何もない透過ブロック
- * 1 = 地面（プラットフォーム）
- * 2 = 敵
- * 3 = コイン
- * 4 = スター（ゴール）
- * 5 = プレイヤー初期位置
- * 6 = トゲ
+ * タイルマップのタイルタイプ（カテゴリ別範囲方式）
+ * 
+ * カテゴリ別範囲：
+ * - 0: 空（何もない透過ブロック）
+ * - 10-19: 地面系（10 = 通常の地面）
+ * - 20-29: 敵系（20 = 通常の敵）
+ * - 30-39: アイテム系（30 = コイン、31 = スター）
+ * - 40-49: 罠系（40 = トゲ）
+ * - 50-59: 特殊系（50 = プレイヤー初期位置）
  */
-export type TileType = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type TileType = 0 | 10 | 20 | 30 | 31 | 40 | 50;
+
+/**
+ * タイルカテゴリ
+ */
+export type TileCategory = 'EMPTY' | 'PLATFORM' | 'ENEMY' | 'COLLECTIBLE' | 'HAZARD' | 'SPECIAL';
+
+/**
+ * タイルタイプの定数定義
+ */
+export const TILE_TYPES = {
+  EMPTY: 0,
+  PLATFORM: {
+    BASIC: 10,
+  },
+  ENEMY: {
+    BASIC: 20,
+  },
+  COLLECTIBLE: {
+    COIN: 30,
+    STAR: 31,
+  },
+  HAZARD: {
+    SPIKE: 40,
+  },
+  SPECIAL: {
+    PLAYER_SPAWN: 50,
+  },
+} as const;
+
+/**
+ * タイルのカテゴリを取得する
+ */
+export function getTileCategory(tile: number): TileCategory {
+  if (tile === 0) return 'EMPTY';
+  if (tile >= 10 && tile < 20) return 'PLATFORM';
+  if (tile >= 20 && tile < 30) return 'ENEMY';
+  if (tile >= 30 && tile < 40) return 'COLLECTIBLE';
+  if (tile >= 40 && tile < 50) return 'HAZARD';
+  if (tile >= 50 && tile < 60) return 'SPECIAL';
+  return 'EMPTY';
+}
 
 /**
  * タイルマップデータ
