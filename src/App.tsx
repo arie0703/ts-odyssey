@@ -174,8 +174,12 @@ const App: React.FC = () => {
   return (
     <div className="relative w-full h-screen flex items-center justify-center bg-gray-900 font-sans overflow-hidden">
       <div 
-        className="relative overflow-hidden bg-sky-300 border-4 border-white shadow-2xl"
-        style={{ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT }}
+        className="relative overflow-hidden border-4 border-white shadow-2xl"
+        style={{ 
+          width: VIEWPORT_WIDTH, 
+          height: VIEWPORT_HEIGHT,
+          backgroundColor: gameState.backgroundColor
+        }}
       >
         <div 
           className="absolute inset-0"
@@ -183,7 +187,7 @@ const App: React.FC = () => {
         >
           {/* Platforms */}
           {gameState.platforms.map(platform => (
-            <Platform key={platform.id} platform={platform} />
+            <Platform key={platform.id} platform={platform} platformColor={gameState.platformColor} />
           ))}
 
           {/* Coins */}

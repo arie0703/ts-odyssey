@@ -17,6 +17,8 @@ const DEFAULT_WIDTH = 125;
 const DEFAULT_HEIGHT = 15;
 const DEFAULT_TILE_SIZE = 40;
 const TILE_DISPLAY_SIZE = 20; // エディターでの表示サイズ
+const DEFAULT_BACKGROUND_COLOR = '#87ceeb'; // sky-300相当
+const DEFAULT_PLATFORM_COLOR = '#92400e'; // orange-800相当
 
 const MapEditor: React.FC = () => {
   const [selectedTileType, setSelectedTileType] = useState<TileType>(10);
@@ -31,6 +33,8 @@ const MapEditor: React.FC = () => {
   const [enemySpawns, setEnemySpawns] = useState<EntitySpawn[]>([]);
   const [coinSpawns, setCoinSpawns] = useState<EntitySpawn[]>([]);
   const [starSpawn, setStarSpawn] = useState<EntitySpawn | null>(null);
+  const [backgroundColor, setBackgroundColor] = useState<string>(DEFAULT_BACKGROUND_COLOR);
+  const [platformColor, setPlatformColor] = useState<string>(DEFAULT_PLATFORM_COLOR);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,7 +43,7 @@ const MapEditor: React.FC = () => {
     try {
       setIsLoading(true);
       const existingMap = loadTileMap();
-      const { map, playerSpawn: ps, enemySpawns: es, coinSpawns: cs, starSpawn: ss } = existingMap;
+      const { map, playerSpawn: ps, enemySpawns: es, coinSpawns: cs, starSpawn: ss, backgroundColor: bg, platformColor: pf } = existingMap;
 
       // タイル配列を2次元配列に変換
       const tiles2D = Array.isArray(map.tiles[0])
@@ -54,6 +58,8 @@ const MapEditor: React.FC = () => {
       setEnemySpawns(es || []);
       setCoinSpawns(cs || []);
       setStarSpawn(ss || null);
+      setBackgroundColor(bg || DEFAULT_BACKGROUND_COLOR);
+      setPlatformColor(pf || DEFAULT_PLATFORM_COLOR);
     } catch (error) {
       console.error('マップの読み込みに失敗しました:', error);
       alert('マップの読み込みに失敗しました');
@@ -167,6 +173,8 @@ const MapEditor: React.FC = () => {
         tileSize: tileSize,
         tiles: tiles
       },
+      backgroundColor: backgroundColor !== DEFAULT_BACKGROUND_COLOR ? backgroundColor : undefined,
+      platformColor: platformColor !== DEFAULT_PLATFORM_COLOR ? platformColor : undefined,
       playerSpawn: playerSpawn || undefined,
       enemySpawns: enemySpawns.length > 0 ? enemySpawns : undefined,
       coinSpawns: coinSpawns.length > 0 ? coinSpawns : undefined,
@@ -183,7 +191,7 @@ const MapEditor: React.FC = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, [mapWidth, mapHeight, tileSize, tiles, playerSpawn, enemySpawns, coinSpawns, starSpawn]);
+  }, [mapWidth, mapHeight, tileSize, tiles, playerSpawn, enemySpawns, coinSpawns, starSpawn, backgroundColor, platformColor]);
 
   // マップクリア
   const handleClear = useCallback(() => {
@@ -193,6 +201,8 @@ const MapEditor: React.FC = () => {
       setEnemySpawns([]);
       setCoinSpawns([]);
       setStarSpawn(null);
+      setBackgroundColor(DEFAULT_BACKGROUND_COLOR);
+      setPlatformColor(DEFAULT_PLATFORM_COLOR);
     }
   }, [mapWidth, mapHeight]);
 
@@ -203,7 +213,7 @@ const MapEditor: React.FC = () => {
 
         {/* コントロールパネル */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* タイルタイプ選択 */}
             <div>
               <label className="block text-sm font-medium mb-2">タイルタイプ</label>
@@ -266,6 +276,49 @@ const MapEditor: React.FC = () => {
                     onChange={(e) => setTileSize(Number(e.target.value))}
                     className="w-full"
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* 色設定 */}
+            <div>
+              <label className="block text-sm font-medium mb-2">色設定</label>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs block mb-1">背景色</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={backgroundColor}
+                      onChange={(e) => setBackgroundColor(e.target.value)}
+                      className="w-12 h-8 rounded border border-gray-300 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={backgroundColor}
+                      onChange={(e) => setBackgroundColor(e.target.value)}
+                      className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded"
+                      placeholder="#87ceeb"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs block mb-1">地面色</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={platformColor}
+                      onChange={(e) => setPlatformColor(e.target.value)}
+                      className="w-12 h-8 rounded border border-gray-300 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={platformColor}
+                      onChange={(e) => setPlatformColor(e.target.value)}
+                      className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded"
+                      placeholder="#92400e"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

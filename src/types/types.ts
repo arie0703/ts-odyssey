@@ -37,4 +37,6 @@ export interface GameState {
   spikes: Entity[];
   viewportX: number;
   status: GameStatus;
+  backgroundColor: string;
+  platformColor: string;
 }
