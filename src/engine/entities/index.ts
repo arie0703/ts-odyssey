@@ -7,3 +7,4 @@ export * from './enemy';
 export * from './coin';
 export * from './star';
 export * from './spike';
+export * from './crackedPlatform';

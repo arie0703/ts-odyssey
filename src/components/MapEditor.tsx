@@ -6,6 +6,7 @@ import { convert1DTo2DTiles } from '../engine/tileMap/tileMapConverter';
 const TILE_TYPE_OPTIONS: { value: TileType; label: string; color: string }[] = [
   { value: 0, label: '空', color: 'transparent' },
   { value: 10, label: '地面', color: '#92400e' },
+  { value: 11, label: 'ひび割れた床', color: '#78350f' },
   { value: 20, label: '敵', color: '#dc2626' },
   { value: 30, label: 'コイン', color: '#fbbf24' },
   { value: 31, label: 'スター', color: '#f59e0b' },

@@ -8,6 +8,7 @@ import { createInitialState, updateState } from './engine/engine';
 import MapEditor from './components/MapEditor';
 import Player from './components/entities/Player';
 import Platform from './components/entities/Platform';
+import CrackedPlatform from './components/entities/CrackedPlatform';
 import Coin from './components/entities/Coin';
 import Enemy from './components/entities/Enemy';
 import Spike from './components/entities/Spike';
@@ -186,9 +187,24 @@ const App: React.FC = () => {
           style={{ transform: `translateX(-${gameState.viewportX}px)` }}
         >
           {/* Platforms */}
-          {gameState.platforms.map(platform => (
-            <Platform key={platform.id} platform={platform} platformColor={gameState.platformColor} />
-          ))}
+          {gameState.platforms.map(platform => {
+            if (platform.type === 'CRACKED_PLATFORM') {
+              return (
+                <CrackedPlatform 
+                  key={platform.id} 
+                  platform={platform} 
+                  platformColor={gameState.platformColor} 
+                />
+              );
+            }
+            return (
+              <Platform 
+                key={platform.id} 
+                platform={platform} 
+                platformColor={gameState.platformColor} 
+              />
+            );
+          })}
 
           {/* Coins */}
           {gameState.coins.map(coin => (

@@ -12,6 +12,7 @@ import { updateEnemy } from './entities/enemy';
 import { updateCoin } from './entities/coin';
 import { updateStar } from './entities/star';
 import { updateSpike } from './entities/spike';
+import { updateCrackedPlatform } from './entities/crackedPlatform';
 
 export function createInitialState(mapPath: string = 'default'): GameState {
   const { platforms, enemies, coins, star, spikes, playerSpawn, backgroundColor, platformColor } = createEntitiesFromTileMap(mapPath);
@@ -55,29 +56,37 @@ export function updateState(
   // 2. プレイヤー物理演算
   applyPlayerPhysics(player);
 
-  // 3. プレイヤーとプラットフォームの衝突
+  // 3. ひび割れた床の更新（衝突判定の前に実行）
+  newState.platforms = newState.platforms.map((platform) => {
+    if (platform.type === 'CRACKED_PLATFORM') {
+      return updateCrackedPlatform(platform, player);
+    }
+    return platform;
+  });
+
+  // 4. プレイヤーとプラットフォームの衝突
   handlePlayerPlatformCollisions(player, newState.platforms);
 
-  // 4. プレイヤーの落下判定
+  // 5. プレイヤーの落下判定
   if (checkPlayerFall(player, onDamage)) {
     return prev; // App.tsx側のhandleDamageで状態が更新されるため
   }
 
-  // 5. 敵の更新
+  // 6. 敵の更新
   newState.enemies = newState.enemies.map((enemy) =>
     updateEnemy(enemy, player, newState.platforms, onDamage)
   );
 
-  // 6. コインの更新
+  // 7. コインの更新
   newState.coins = newState.coins.map((coin) => updateCoin(coin, player));
 
-  // 7. スターの更新
+  // 8. スターの更新
   const starResult = updateStar(newState.star, player);
   if (starResult === GameStatus.CLEAR) {
     newState.status = GameStatus.CLEAR;
   }
 
-  // 8. トゲの更新
+  // 9. トゲの更新
   newState.spikes = newState.spikes.map((spike) =>
     updateSpike(spike, player, onDamage)
   );

@@ -1,5 +1,5 @@
 
-export type EntityType = 'PLAYER' | 'ENEMY' | 'COIN' | 'PLATFORM' | 'STAR' | 'SPIKE';
+export type EntityType = 'PLAYER' | 'ENEMY' | 'COIN' | 'PLATFORM' | 'CRACKED_PLATFORM' | 'STAR' | 'SPIKE';
 
 export interface Vector2D {
   x: number;
@@ -14,6 +14,10 @@ export interface Entity {
   vel: Vector2D;
   isDead?: boolean;
   isCollected?: boolean;
+  // ひび割れた床用のプロパティ
+  isCracked?: boolean;        // ひび割れ状態かどうか
+  crackTimer?: number;        // 消滅までのタイマー（ミリ秒）
+  isDestroyed?: boolean;      // 消滅済みかどうか
 }
 
 export enum GameStatus {
