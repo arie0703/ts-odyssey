@@ -63,6 +63,9 @@ export function loadTileMap(mapPath: string = 'default'): TileMapDefinition {
   }
 }
 
+const DEFAULT_BACKGROUND_COLOR = '#87ceeb'; // sky-300相当
+const DEFAULT_PLATFORM_COLOR = '#92400e'; // orange-800相当
+
 /**
  * タイルマップからエンティティを生成する
  * @param mapPath マップファイルのパス（'default'の場合はデフォルトマップ）
@@ -74,9 +77,11 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
   star: Entity | null;
   spikes: Entity[];
   playerSpawn: { x: number; y: number };
+  backgroundColor: string;
+  platformColor: string;
 } {
   const tileMap = loadTileMap(mapPath);
-  const { map, enemySpawns = [], coinSpawns = [], starSpawn, playerSpawn } = tileMap;
+  const { map, enemySpawns = [], coinSpawns = [], starSpawn, playerSpawn, backgroundColor, platformColor } = tileMap;
 
   // タイル配列を2次元配列として扱う
   const tiles = Array.isArray(map.tiles[0])
@@ -202,6 +207,8 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
     coins,
     star,
     spikes,
-    playerSpawn: playerSpawnPos
+    playerSpawn: playerSpawnPos,
+    backgroundColor: backgroundColor || DEFAULT_BACKGROUND_COLOR,
+    platformColor: platformColor || DEFAULT_PLATFORM_COLOR
   };
 }

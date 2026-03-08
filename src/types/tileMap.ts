@@ -88,6 +88,10 @@ export interface EntitySpawn {
 export interface TileMapDefinition {
   /** タイルマップデータ */
   map: TileMapData;
+  /** ステージの背景色（CSSカラー値、例: "#87ceeb" または "rgb(135, 206, 235)"） */
+  backgroundColor?: string;
+  /** 地面の色（CSSカラー値、例: "#92400e" または "rgb(146, 64, 14)"） */
+  platformColor?: string;
   /** プレイヤーの初期位置（タイル座標） */
   playerSpawn?: { tileX: number; tileY: number };
   /** 敵の初期位置リスト */

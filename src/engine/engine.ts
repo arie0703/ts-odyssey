@@ -14,7 +14,7 @@ import { updateStar } from './entities/star';
 import { updateSpike } from './entities/spike';
 
 export function createInitialState(mapPath: string = 'default'): GameState {
-  const { platforms, enemies, coins, star, spikes, playerSpawn } = createEntitiesFromTileMap(mapPath);
+  const { platforms, enemies, coins, star, spikes, playerSpawn, backgroundColor, platformColor } = createEntitiesFromTileMap(mapPath);
 
   return {
     player: {
@@ -33,7 +33,9 @@ export function createInitialState(mapPath: string = 'default'): GameState {
     star,
     spikes,
     viewportX: 0,
-    status: GameStatus.START
+    status: GameStatus.START,
+    backgroundColor,
+    platformColor
   };
 }
 
