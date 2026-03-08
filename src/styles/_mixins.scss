@@ -1,0 +1,58 @@
+// ミックスイン: アニメーション
+@mixin animation-pulse($duration: $animation-duration-normal) {
+  animation: pulse $duration ease-in-out;
+}
+
+@mixin animation-fade($duration: $animation-duration-normal) {
+  animation: fade $duration ease-in-out;
+}
+
+// ミックスイン: トランジション
+@mixin transition($property: all, $duration: $animation-duration-normal, $easing: ease-in-out) {
+  transition: $property $duration $easing;
+}
+
+// ミックスイン: ホバーエフェクト
+@mixin hover-scale($scale: 1.05) {
+  transition: transform $animation-duration-fast ease-in-out;
+  
+  &:hover {
+    transform: scale($scale);
+  }
+}
+
+// ミックスイン: 絶対配置
+@mixin absolute-position($left: 0, $top: 0) {
+  position: absolute;
+  left: $left;
+  top: $top;
+}
+
+// ミックスイン: フレックスボックス中央配置
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ミックスイン: クリップパス（三角形）
+@mixin triangle-clip-path {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+// ミックスイン: レスポンシブ（将来的な拡張用）
+@mixin responsive($breakpoint) {
+  @if $breakpoint == mobile {
+    @media (max-width: 768px) {
+      @content;
+    }
+  } @else if $breakpoint == tablet {
+    @media (min-width: 769px) and (max-width: 1024px) {
+      @content;
+    }
+  } @else if $breakpoint == desktop {
+    @media (min-width: 1025px) {
+      @content;
+    }
+  }
+}

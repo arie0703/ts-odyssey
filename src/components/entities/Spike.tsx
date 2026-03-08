@@ -1,6 +1,6 @@
 import React from 'react';
 import { Entity } from '../../types/types';
-import '../../styles/spike.css';
+import '../../styles/spike.scss';
 
 interface SpikeProps {
   spike: Entity;
