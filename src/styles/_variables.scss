@@ -1,0 +1,36 @@
+// 色の定義
+$color-background-default: #87ceeb; // sky-300相当
+$color-platform-default: #92400e; // orange-800相当
+$color-spike: #4b5563; // gray-600
+$color-enemy: #dc2626; // red-600
+$color-coin: #fbbf24; // yellow-400
+$color-star: #f59e0b; // amber-500
+$color-player: #3b82f6; // blue-500
+
+// ゲームサイズ
+$tile-size: 40px;
+$viewport-width: 800px;
+$viewport-height: 600px;
+$world-width: 5000px;
+
+// エンティティサイズ
+$player-width: 32px;
+$player-height: 48px;
+$enemy-size: 40px;
+$coin-size: 25px;
+$star-size: 50px;
+
+// アニメーション
+$animation-duration-fast: 0.2s;
+$animation-duration-normal: 0.3s;
+$animation-duration-slow: 0.5s;
+$animation-duration-hurt: 1.2s;
+
+// その他の設定
+$border-radius-small: 4px;
+$border-radius-medium: 8px;
+$border-radius-large: 12px;
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);

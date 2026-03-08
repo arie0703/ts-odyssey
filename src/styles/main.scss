@@ -1,0 +1,33 @@
+// メインのスタイルファイル
+// 変数、ミックスイン、コンポーネントをインポート
+
+@import 'variables';
+@import 'mixins';
+@import 'components';
+@import 'spike';
+
+// グローバルスタイル
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+// アニメーション定義
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
