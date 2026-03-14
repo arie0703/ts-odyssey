@@ -11,6 +11,7 @@ import Platform from './components/entities/Platform';
 import CrackedPlatform from './components/entities/CrackedPlatform';
 import Coin from './components/entities/Coin';
 import Enemy from './components/entities/Enemy';
+import DangerousEnemy from './components/entities/DangerousEnemy';
 import Spike from './components/entities/Spike';
 import Goal from './components/entities/Goal';
 import { getAvailableMaps } from './engine/tileMap/tileMapLoader';
@@ -212,9 +213,12 @@ const App: React.FC = () => {
           ))}
 
           {/* Enemies */}
-          {gameState.enemies.map(enemy => (
-            <Enemy key={enemy.id} enemy={enemy} />
-          ))}
+          {gameState.enemies.map(enemy => {
+            if (enemy.type === 'DANGEROUS_ENEMY') {
+              return <DangerousEnemy key={enemy.id} enemy={enemy} />;
+            }
+            return <Enemy key={enemy.id} enemy={enemy} />;
+          })}
 
           {/* Spikes */}
           {gameState.spikes.map(spike => (

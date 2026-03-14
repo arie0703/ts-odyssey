@@ -8,6 +8,7 @@ const TILE_TYPE_OPTIONS: { value: TileType; label: string; color: string }[] = [
   { value: 10, label: '地面', color: '#92400e' },
   { value: 11, label: 'ひび割れた床', color: '#78350f' },
   { value: 20, label: '敵', color: '#dc2626' },
+  { value: 21, label: '危険な敵', color: '#9333ea' },
   { value: 30, label: 'コイン', color: '#fbbf24' },
   { value: 31, label: 'スター', color: '#f59e0b' },
   { value: 50, label: 'プレイヤー', color: '#3b82f6' },
@@ -107,6 +108,20 @@ const MapEditor: React.FC = () => {
             vel: { x: -2, y: 0 }
           }]);
         }
+      } else if (selectedTileType === TILE_TYPES.ENEMY.DANGEROUS) { // 危険な敵
+        if (oldType === TILE_TYPES.ENEMY.DANGEROUS) {
+          // 既存の危険な敵を削除
+          setEnemySpawns(prev => prev.filter(e => !(e.tileX === x && e.tileY === y)));
+        } else {
+          // 新しい危険な敵を追加
+          const enemyId = `de-${enemySpawns.length + 1}`;
+          setEnemySpawns(prev => [...prev, {
+            id: enemyId,
+            tileX: x,
+            tileY: y,
+            vel: { x: -2, y: 0 }
+          }]);
+        }
       } else if (selectedTileType === TILE_TYPES.COLLECTIBLE.COIN) { // コイン
         if (oldType === TILE_TYPES.COLLECTIBLE.COIN) {
           setCoinSpawns(prev => prev.filter(c => !(c.tileX === x && c.tileY === y)));
@@ -134,7 +149,7 @@ const MapEditor: React.FC = () => {
         // トゲはSpawns情報が不要なので、タイルタイプだけを設定
       } else {
         // 他のタイルタイプに変更された場合、Spawns情報を削除
-        if (oldType === TILE_TYPES.ENEMY.BASIC) {
+        if (oldType === TILE_TYPES.ENEMY.BASIC || oldType === TILE_TYPES.ENEMY.DANGEROUS) {
           setEnemySpawns(prev => prev.filter(e => !(e.tileX === x && e.tileY === y)));
         } else if (oldType === TILE_TYPES.COLLECTIBLE.COIN) {
           setCoinSpawns(prev => prev.filter(c => !(c.tileX === x && c.tileY === y)));
@@ -394,6 +409,12 @@ const MapEditor: React.FC = () => {
                         {isEnemySpawn && tile === TILE_TYPES.ENEMY.BASIC && (
                           <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
                             E
+                          </div>
+                        )}
+                        {/* 危険な敵スポーン表示 */}
+                        {isEnemySpawn && tile === TILE_TYPES.ENEMY.DANGEROUS && (
+                          <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-yellow-300">
+                            D
                           </div>
                         )}
                         {/* コインスポーン表示 */}

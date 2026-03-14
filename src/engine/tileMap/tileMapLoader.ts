@@ -158,6 +158,17 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
               vel: spawnInfo?.vel || { x: -2, y: 0 },
               isDead: false
             });
+          } else if (tile === TILE_TYPES.ENEMY.DANGEROUS) {
+            const key = `${x},${y}`;
+            const spawnInfo = enemySpawnMap.get(key);
+            enemies.push({
+              id: spawnInfo?.id || `de-${enemyIndex++}`,
+              type: 'DANGEROUS_ENEMY',
+              pos: { x: pixelX, y: pixelY },
+              size: { x: 40, y: 40 },
+              vel: spawnInfo?.vel || { x: -2, y: 0 },
+              isDead: false
+            });
           }
           break;
         case 'COLLECTIBLE':
