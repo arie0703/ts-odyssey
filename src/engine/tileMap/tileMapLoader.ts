@@ -131,6 +131,18 @@ export function createEntitiesFromTileMap(mapPath: string = 'default'): {
               size: { x: map.tileSize, y: map.tileSize },
               vel: { x: 0, y: 0 }
             });
+          } else if (tile === TILE_TYPES.PLATFORM.CRACKED) {
+            // ひび割れた床
+            platforms.push({
+              id: `cp-${x}-${y}`,
+              type: 'CRACKED_PLATFORM',
+              pos: { x: pixelX, y: pixelY },
+              size: { x: map.tileSize, y: map.tileSize },
+              vel: { x: 0, y: 0 },
+              isCracked: true,
+              crackTimer: 1000, // 1秒（1000ミリ秒）
+              isDestroyed: false
+            });
           }
           break;
         case 'ENEMY':

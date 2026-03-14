@@ -43,6 +43,11 @@ export function handlePlayerPlatformCollisions(
   platforms: Entity[]
 ): void {
   platforms.forEach((platform) => {
+    // 消滅したひび割れた床は衝突判定から除外
+    if (platform.isDestroyed) {
+      return;
+    }
+    
     if (checkCollision(player, platform)) {
       if (player.vel.y > 0 && player.pos.y + player.size.y - player.vel.y <= platform.pos.y + 5) {
         // 上から着地
