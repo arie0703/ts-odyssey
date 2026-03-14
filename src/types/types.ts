@@ -1,5 +1,5 @@
 
-export type EntityType = 'PLAYER' | 'ENEMY' | 'COIN' | 'PLATFORM' | 'CRACKED_PLATFORM' | 'STAR' | 'SPIKE';
+export type EntityType = 'PLAYER' | 'ENEMY' | 'DANGEROUS_ENEMY' | 'COIN' | 'PLATFORM' | 'CRACKED_PLATFORM' | 'STAR' | 'SPIKE';
 
 export interface Vector2D {
   x: number;

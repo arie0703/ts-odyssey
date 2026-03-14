@@ -62,8 +62,14 @@ export function updateEnemy(
   if (checkCollision(player, enemy)) {
     if (player.vel.y > 0 && player.pos.y + player.size.y - player.vel.y <= enemy.pos.y + 10) {
       // プレイヤーが上から踏みつけた
-      player.vel.y = JUMP_FORCE / 1.5;
-      return { ...enemy, isDead: true };
+      if (enemy.type === 'DANGEROUS_ENEMY') {
+        // 危険な敵は踏みつけても倒せず、ダメージを受ける
+        onDamage(false);
+      } else {
+        // 通常の敵は踏みつけると倒せる
+        player.vel.y = JUMP_FORCE / 1.5;
+        return { ...enemy, isDead: true };
+      }
     } else {
       // プレイヤーがダメージを受ける
       onDamage(false);
